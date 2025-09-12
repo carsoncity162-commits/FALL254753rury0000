@@ -16,3 +16,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/carsoncity162-commits/FALL254753rury0000
 BugReports: https://github.com/carsoncity162-commits/FALL254753rury0000/issues
+RoxygenNote: 7.3.2
