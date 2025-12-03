@@ -1,0 +1,56 @@
+---
+title: "Birthday"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(FALL254753rury0000)
+```
+
+# Derivation of birthday solution
+
+$$ A = \text{2 or more people have the same birthday}$$
+$$ A^{C} = \text{every person has a different birthday} $$
+$$ n = \text{number of people}$$
+$$ \text{number of possible outcomes} = 365^{n} \text{ : by multiplicative rule}$$
+$$ \text{succesful outcomes in } A^{C} = 365 \times 364 \times \ ...\ \times (365 - n + 1) $$
+$$ P(A^{C}) = \frac{\frac{365!}{(365-n)!}}{365^{n}}$$
+$$ P(A^{C}) = \frac {^{365}P_{n}}{365^{n}}$$
+$$ P(A) = 1 - P(A^{C}) $$
+$$P(A) = 1 - \frac {^{365}P_{n}}{365^{n}} $$
+
+# Derivation of r code
+$$ {^{365}P_{n}} = n! \times ^{365}C_{n} $$
+$$ log(P(A^{C})) = log(\frac {^{365}P_{n}}{365^{n}})$$
+$$ log(P(A^{C})) = log(^{365}P_{n}) - log(365^{n})$$
+$$ log(P(A^{C})) = log(n! \times ^{365}C_{n}) - nlog(365)$$
+$$ log(P(A^{C})) = log(n!) +log(^{365}C_{n}) - nlog(365)$$
+$$ log(P(A^{C})) = lfactorial(n) + lchoose(365,n) - nlog365 $$
+$$ P(A^{C}) = e^{lfactorial(n) + lchoose(365,n) - nlog365} $$
+$$ P(A) = 1- e^{lfactorial(n) + lchoose(365,n) - nlog365}$$
+
+# Body of function
+
+```{r}
+birthday <- function(x){
+  1- exp(lchoose(365,x)+lfactorial(x)-x*log(365))
+}
+```
+
+# Example
+
+```{r}
+birthday(20:25)
+```
+
