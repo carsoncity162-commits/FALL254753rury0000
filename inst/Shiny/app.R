@@ -8,16 +8,16 @@ library(univariateML) # Provides ml... functions for MLE
 
 # --- Define the Shiny App UI ---
 ui <- fluidPage(
-  
+
   # App title
   titlePanel("Maximum Likelihood Estimation for Univariate Distributions"),
-  
+
   # Sidebar layout with input and output definitions
   sidebarLayout(
-    
+
     # Sidebar panel for inputs
     sidebarPanel(
-      
+
       # Select Distribution
       selectInput(
         inputId = "distribution",
@@ -31,7 +31,7 @@ ui <- fluidPage(
         ),
         selected = "norm"
       ),
-      
+
       # Slider for Sample Size
       sliderInput(
         inputId = "n_samples",
@@ -41,21 +41,21 @@ ui <- fluidPage(
         value = 100,
         step = 10
       ),
-      
+
       # Conditional inputs for true parameters
       uiOutput("param_inputs"),
-      
+
       # Action button to regenerate data
       actionButton("regenerate", "Generate New Sample", icon = icon("refresh"))
     ),
-    
+
     # Main panel for outputs
     mainPanel(
-      
+
       # Tabset for plot and estimates
       tabsetPanel(
         tabPanel(
-          "Data & MLE Fit Plot", 
+          "Data & MLE Fit Plot",
           h4("Histogram of Generated Data with Fitted Density"),
           plotOutput("data_plot")
         ),
@@ -73,15 +73,15 @@ ui <- fluidPage(
 
 # --- Define the Shiny App Server ---
 server <- function(input, output, session) {
-  
+
   # Reactive value to store the simulated data
   data_reac <- reactiveVal(NULL)
-  
+
   # --- 1. Dynamic UI for Parameter Inputs ---
   output$param_inputs <- renderUI({
     req(input$distribution)
     dist <- input$distribution
-    
+
     # Define the parameter inputs based on the selected distribution
     if (dist == "norm") {
       list(
@@ -104,16 +104,16 @@ server <- function(input, output, session) {
       )
     }
   })
-  
+
   # --- 2. Data Simulation (Triggers on button press) ---
   observeEvent(input$regenerate, {
-    
+
     dist <- input$distribution
     n <- input$n_samples
-    
+
     # Use tryCatch to handle potential errors in parameter input
     sim_data <- tryCatch({
-      
+
       if (dist == "norm") {
         rnorm(n, mean = input$mu, sd = input$sigma)
       } else if (dist == "exp") {
@@ -130,16 +130,16 @@ server <- function(input, output, session) {
       showNotification(paste("Error generating data:", e$message), type = "error")
       return(NULL)
     })
-    
+
     data_reac(sim_data)
   }, ignoreNULL = FALSE, once = TRUE) # Run once on startup, then on button press
-  
+
   # --- 3. Maximum Likelihood Estimation ---
   mle_results <- reactive({
     req(data_reac())
     dist <- input$distribution
     data <- data_reac()
-    
+
     tryCatch({
       if (dist == "norm") {
         # mlnorm returns a list of two parameters: mean and sd
@@ -170,45 +170,45 @@ server <- function(input, output, session) {
         true_params <- c("Size (k)" = size_val, "Prob (p)" = input$prob)
         log_L <- sum(dbinom(data, size = size_val, prob = est_params[2], log = TRUE))
       }
-      
+
       # Format results into a data frame
       results <- data.frame(
         Parameter = names(true_params),
         True = as.numeric(true_params),
         MLE = as.numeric(est_params)
       )
-      
+
       # Return list of results
       list(table = results, log_L = log_L, est_params = est_params)
-      
+
     }, error = function(e) {
       # Handle potential MLE failures (e.g., non-convergence)
       showNotification(paste("MLE Error:", e$message), type = "warning")
       return(list(table = NULL, log_L = "Calculation Failed", est_params = NULL))
     })
   })
-  
+
   # --- 4. Render Outputs ---
-  
+
   # Render the estimates table
   output$mle_table <- renderTable({
     req(mle_results())
     mle_results()$table
   }, digits = 4)
-  
+
   # Render the log-likelihood
   output$log_likelihood <- renderPrint({
     req(mle_results())
     mle_results()$log_L
   })
-  
+
   # Render the plot
   output$data_plot <- renderPlot({
     req(data_reac(), mle_results())
     data <- data_reac()
     est_params <- mle_results()$est_params
     dist <- input$distribution
-    
+
     p <- ggplot(data = data.frame(x = data), aes(x)) +
       theme_minimal() +
       labs(
@@ -216,15 +216,15 @@ server <- function(input, output, session) {
         x = "Value",
         y = "Density"
       )
-    
+
     # Continuous Distributions: Normal, Exponential, Gamma
     if (dist %in% c("norm", "exp", "gamma")) {
-      
+
       p <- p + geom_histogram(aes(y = after_stat(density)), bins = 30, fill = "skyblue", color = "white")
-      
+
       # Overlay MLE density curve
       x_range <- seq(min(data), max(data), length.out = 500)
-      
+
       if (dist == "norm") {
         density_values <- dnorm(x_range, mean = est_params[1], sd = est_params[2])
       } else if (dist == "exp") {
@@ -232,36 +232,36 @@ server <- function(input, output, session) {
       } else if (dist == "gamma") {
         density_values <- dgamma(x_range, shape = est_params[1], rate = est_params[2])
       }
-      
+
       p <- p + geom_line(
         data = data.frame(x = x_range, y = density_values),
         aes(x, y),
         color = "red",
         linewidth = 1
       )
-      
+
       # Discrete Distributions: Poisson, Binomial
     } else if (dist %in% c("pois", "binom")) {
-      
+
       p <- p + geom_bar(aes(y = after_stat(prop)), fill = "skyblue", color = "white") +
         labs(y = "Relative Frequency")
-      
+
       # Overlay MLE probability mass function (PMF)
       x_range <- seq(min(data), max(data), by = 1)
-      
+
       if (dist == "pois") {
         pmf_values <- dpois(x_range, lambda = est_params[1])
       } else if (dist == "binom") {
         pmf_values <- dbinom(x_range, size = input$size, prob = est_params[2])
       }
-      
+
       # The PMF must be scaled by the total number of observations to compare with relative frequency
       pmf_df <- data.frame(x = x_range, y = pmf_values)
-      
+
       p <- p + geom_point(data = pmf_df, aes(x, y), color = "red", size = 3) +
         geom_segment(data = pmf_df, aes(x = x, xend = x, y = 0, yend = y), color = "red")
     }
-    
+
     print(p)
   })
 }

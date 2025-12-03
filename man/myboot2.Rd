@@ -2,7 +2,7 @@
 % Please edit documentation in R/myboot2.R
 \name{myboot2}
 \alias{myboot2}
-\title{myboot2}
+\title{Title myboot2}
 \usage{
 myboot2(iter = 10000, x, fun = "mean", alpha = 0.05, cx = 1.5, ...)
 }
@@ -23,8 +23,8 @@ myboot2(iter = 10000, x, fun = "mean", alpha = 0.05, cx = 1.5, ...)
 a barplot of the density for the desired statistic given a sample. calculates point and interval estimates
 }
 \description{
-myboot2
+Title myboot2
 }
 \examples{
-myboot2(iter=10000,x=sam,fun="mean",alpha=0.05)
+myboot2(iter=10000,x=rnorm(30),fun="mean",alpha=0.05)
 }

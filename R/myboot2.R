@@ -1,4 +1,4 @@
-#' myboot2
+#' Title myboot2
 #'
 #' @param iter number of trials
 #' @param x a vector of a sample
@@ -10,7 +10,7 @@
 #' @returns a barplot of the density for the desired statistic given a sample. calculates point and interval estimates
 #' @export
 #'
-#' @examples myboot2(iter=10000,x=sam,fun="mean",alpha=0.05)
+#' @examples myboot2(iter=10000,x=rnorm(30),fun="mean",alpha=0.05)
 myboot2<-function(iter=10000,x,fun="mean",alpha=0.05,cx=1.5,...){  #Notice where the ... is repeated in the code
   n=length(x)   #sample size
 
