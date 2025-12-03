@@ -1,8 +1,8 @@
 #' My multinomial
 #'
-#' @param iter
-#' @param n
-#' @param p
+#' @param iter number of iterations to conduct
+#' @param n number of items to sample
+#' @param p probability of each outcome
 #'
 #' @returns barplot of relative frequency for a multinomial distribution
 #' @export

@@ -1,0 +1,56 @@
+---
+title: "Overview"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(FALL254753rury0000)
+```
+
+# Overview
+
+This package provides various functions used in Math 4753: Applied Statistical Methods. Below are some examples.
+
+## mycltb
+
+This function creates randdom samples from a binomial distribution, takes the mean, and builds a histogram. The dotted line shows the theoretical curve. The function models the central limit theorem.
+
+```{r}
+mycltb(n=20,iter=10000)
+```
+
+## myboot2
+
+This function uses the bootstrap method to generate a density for a desired statistic based on a sample. The function returns a barplot with point and interval estimates.
+
+```{r}
+sam <- rnorm(30)
+myboot2(x = sam)
+```
+
+## ntickets
+
+This function calculates the optimum number of tickets to sell on a plane for given number of seats, probability of a seat being filled, and the acceptable risk level. The function returns the normal approximation and discrete estimates for the number of tickets.
+
+```{r}
+ntickets()
+```
+
+## myncurve
+
+The function returns a normal curve with the cumulative probability shaded.
+
+```{r}
+myncurve(mu = 0,sigma = 1,a = 1)
+```
